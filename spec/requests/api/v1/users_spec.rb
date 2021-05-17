@@ -3,8 +3,7 @@ require 'rails_helper'
 RSpec.describe 'Users API', type: :request do
 	let!(:user) { create(:user) }
 	let(:user_id){ user.id }
-
-	let(:headers) {{ "Accept" => "application/vnd.projetofase8.v1"}}
+	let(:headers) {{ "Accept" => "application/vnd.projetofase8.v1", "Authorization" => user.auth_token }}
 
 	before { host! "localhost:3000/api" }
 
@@ -12,13 +11,13 @@ RSpec.describe 'Users API', type: :request do
 
 		before do
 			get "/users/#{user_id}", params: {}, headers: headers
-
 		end
 
 		context "when the user exists" do
 			
 			it "return the user" do
 				expect(json_body["id"]).to eq(user_id)
+			end
 
 			it "returns status code 200" do
 				expect(response).to have_http_status(200)
@@ -61,7 +60,7 @@ RSpec.describe 'Users API', type: :request do
 			end
 
 			it "returns the json data for the errors" do
-				expect(json_body).to have_key("errors")
+				expect(json_body).to have_key('errors')
 			end
 		end
 	end
@@ -93,24 +92,22 @@ RSpec.describe 'Users API', type: :request do
 			end
 
 			it "returns the json data for the errors" do
-				expect(json_body).to have_key("errors")
+				expect(json_body).to have_key('errors')
 			end
 		end
 	end
 
 	describe "DELETE user/:id" do
-
 		before do
-			delete "/users/#{user_id}", params: [], headers: headers
+			delete "/users/#{user_id}", params: {}, headers: headers
 		end
-
 
 		it "returns status code 204" do
 			expect(response).to have_http_status(204)
 		end
 
 		it "removes the user from database" do
-			expect(User.find_by(id: user.id)).to be_nil 
+			expect(User.find_by(id: user.id)).to be_nil
 		end
 	end
 end
